@@ -27,6 +27,9 @@ int simulacion_activa = 1;
 omp_lock_t lock_ventas;
 omp_lock_t lock_precios;
 omp_lock_t lock_display;
+static double T_total_ini, T_total_fin;
+static double T_mostrar = 0.0, T_precios = 0.0, T_ventas = 0.0;
+
 
 
 void inicializar() {
@@ -57,6 +60,7 @@ void inicializar() {
 
 
 void mostrar_estado() {
+    double t0 = omp_get_wtime();
     while (simulacion_activa) {
         omp_set_lock(&lock_display);
         
@@ -86,18 +90,17 @@ void mostrar_estado() {
         printf("================================================================\n");
         printf("TOTALES: Ventas: %d | Ingresos: Q%.2f\n", total_ventas, total_ingresos);
         printf("================================================================\n");
-        printf("Leyenda: Vent.Rec = Ventas Recientes (últimos 2 seg)\n");
+        printf("Leyenda: Vent.Rec = Ventas Recientes (ultimos 2 seg)\n");
         
         omp_unset_lock(&lock_display);
-        
-        sleep(1); 
     }
+    T_mostrar = omp_get_wtime() - t0;
 }
 
 
 void calcular_precios() {
+    double t0 = omp_get_wtime();
     while (simulacion_activa) {
-        sleep(2); 
         
         omp_set_lock(&lock_precios);
         
@@ -132,12 +135,14 @@ void calcular_precios() {
         
         omp_unset_lock(&lock_precios);
     }
+    T_precios = omp_get_wtime() - t0;
 }
 
 
 void procesar_ventas() {
+    double t0 = omp_get_wtime();
+    
     while (simulacion_activa) {
-        sleep(1);
         tiempo_simulacion++;
         
         
@@ -171,6 +176,7 @@ void procesar_ventas() {
             simulacion_activa = 0;
         }
     }
+    T_ventas = omp_get_wtime() - t0;
 }
 
 
@@ -178,8 +184,8 @@ int main() {
     printf("Inicializando sistema de ventas de shucos...\n");
     inicializar();
     
-    printf("Iniciando simulación por %d segundos...\n", SIMULACION_TIEMPO);
-    sleep(2);
+    printf("Iniciando simulacion por %d segundos...\n", SIMULACION_TIEMPO);
+    T_total_ini = omp_get_wtime();
     
     #pragma omp parallel sections num_threads(3)
     {
@@ -198,10 +204,12 @@ int main() {
             procesar_ventas();
         }
     }
+
+    T_total_fin = omp_get_wtime();
     
     system("clear");
     printf("=================================\n");
-    printf("RESUMEN FINAL DESPUÉS DE %d SEGUNDOS:\n", SIMULACION_TIEMPO);
+    printf("RESUMEN FINAL DESPUES DE %d SEGUNDOS:\n", SIMULACION_TIEMPO);
     printf("=================================\n");
     
     double total_ingresos = 0.0;
@@ -229,13 +237,18 @@ int main() {
     
     precio_promedio /= NUM_PUESTOS;
     
-    printf("Puesto más exitoso: Puesto %d (%d ventas)\n", 
+    printf("Puesto mas exitoso: Puesto %d (%d ventas)\n", 
            puestos[puesto_mas_vendido].id, puestos[puesto_mas_vendido].ventas_totales);
     printf("Ingresos totales: Q%.2f\n", total_ingresos);
     printf("Shucos vendidos: %d\n", total_ventas);
     printf("Precio promedio final: Q%.2f\n", precio_promedio);
     printf("Ingreso por shuco: Q%.2f\n", total_ventas > 0 ? total_ingresos / total_ventas : 0);
     
+    double T_total = T_total_fin - T_total_ini;
+    printf("Tiempo total simulacion : %.6f s\n", T_total);
+    // printf(" - mostrar_estado       : %.6f s\n", T_mostrar);
+    // printf(" - calcular_precios     : %.6f s\n", T_precios);
+    // printf(" - procesar_ventas      : %.6f s\n", T_ventas);
     
     omp_destroy_lock(&lock_ventas);
     omp_destroy_lock(&lock_precios);
