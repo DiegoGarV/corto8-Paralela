@@ -4,10 +4,10 @@
 #include <time.h>
 #include <omp.h>
 
-#define NUM_PUESTOS 5
+#define NUM_PUESTOS 610000
 #define PRECIO_MIN 12.0
 #define PRECIO_MAX 18.0
-#define SIMULACION_TIEMPO 30 
+#define SIMULACION_TIEMPO 1000 
 
 
 typedef struct {
@@ -49,13 +49,13 @@ void inicializar() {
         puestos[i].ingresos_totales = 0.0;
     }
     
-    printf("SISTEMA DE VENTAS SHUCOS INICIADO\n");
-    printf("================================================\n");
-    printf("Puestos inicializados con precios aleatorios:\n");
-    for (int i = 0; i < NUM_PUESTOS; i++) {
-        printf("Puesto %d: Q%.2f\n", puestos[i].id, puestos[i].precio_actual);
-    }
-    printf("================================================\n\n");
+    // printf("SISTEMA DE VENTAS SHUCOS INICIADO\n");
+    // printf("================================================\n");
+    // printf("Puestos inicializados con precios aleatorios:\n");
+    // for (int i = 0; i < NUM_PUESTOS; i++) {
+    //     printf("Puesto %d: Q%.2f\n", puestos[i].id, puestos[i].precio_actual);
+    // }
+    // printf("================================================\n\n");
 }
 
 
@@ -64,33 +64,30 @@ void mostrar_estado() {
     while (simulacion_activa) {
         omp_set_lock(&lock_display);
         
-        
-        system("clear"); 
-        
-        printf("\nVENTAS EN LOS SHUCOS - TIEMPO: %d segundos\n", tiempo_simulacion);
-        printf("================================================================\n");
-        printf("| Puesto | Precio  | Ventas Tot | Vent.Rec | Ingresos Tot |\n");
-        printf("================================================================\n");
+        // printf("\nVENTAS EN LOS SHUCOS - TIEMPO: %d segundos\n", tiempo_simulacion);
+        // printf("================================================================\n");
+        // printf("| Puesto | Precio  | Ventas Tot | Vent.Rec | Ingresos Tot |\n");
+        // printf("================================================================\n");
         
         double total_ingresos = 0.0;
         int total_ventas = 0;
         
         for (int i = 0; i < NUM_PUESTOS; i++) {
-            printf("| %-6d | Q%-6.2f | %-10d | %-8d | Q%-11.2f |\n",
-                   puestos[i].id,
-                   puestos[i].precio_actual,
-                   puestos[i].ventas_totales,
-                   puestos[i].ventas_recientes,
-                   puestos[i].ingresos_totales);
+            // printf("| %-6d | Q%-6.2f | %-10d | %-8d | Q%-11.2f |\n",
+            //        puestos[i].id,
+            //        puestos[i].precio_actual,
+            //        puestos[i].ventas_totales,
+            //        puestos[i].ventas_recientes,
+            //        puestos[i].ingresos_totales);
             
             total_ingresos += puestos[i].ingresos_totales;
             total_ventas += puestos[i].ventas_totales;
         }
         
-        printf("================================================================\n");
-        printf("TOTALES: Ventas: %d | Ingresos: Q%.2f\n", total_ventas, total_ingresos);
-        printf("================================================================\n");
-        printf("Leyenda: Vent.Rec = Ventas Recientes (ultimos 2 seg)\n");
+        // printf("================================================================\n");
+        // printf("TOTALES: Ventas: %d | Ingresos: Q%.2f\n", total_ventas, total_ingresos);
+        // printf("================================================================\n");
+        // printf("Leyenda: Vent.Rec = Ventas Recientes (ultimos 2 seg)\n");
         
         omp_unset_lock(&lock_display);
     }
@@ -206,8 +203,7 @@ int main() {
     }
 
     T_total_fin = omp_get_wtime();
-    
-    system("clear");
+
     printf("=================================\n");
     printf("RESUMEN FINAL DESPUES DE %d SEGUNDOS:\n", SIMULACION_TIEMPO);
     printf("=================================\n");
@@ -218,13 +214,13 @@ int main() {
     double precio_promedio = 0.0;
     
     for (int i = 0; i < NUM_PUESTOS; i++) {
-        printf("Puesto %d:\n", puestos[i].id);
-        printf("  - Precio final: Q%.2f\n", puestos[i].precio_actual);
-        printf("  - Ventas totales: %d shucos\n", puestos[i].ventas_totales);
-        printf("  - Ingresos: Q%.2f\n", puestos[i].ingresos_totales);
-        printf("  - Precio promedio por shuco: Q%.2f\n", 
-               puestos[i].ventas_totales > 0 ? puestos[i].ingresos_totales / puestos[i].ventas_totales : 0);
-        printf("\n");
+        // printf("Puesto %d:\n", puestos[i].id);
+        // printf("  - Precio final: Q%.2f\n", puestos[i].precio_actual);
+        // printf("  - Ventas totales: %d shucos\n", puestos[i].ventas_totales);
+        // printf("  - Ingresos: Q%.2f\n", puestos[i].ingresos_totales);
+        // printf("  - Precio promedio por shuco: Q%.2f\n", 
+        //        puestos[i].ventas_totales > 0 ? puestos[i].ingresos_totales / puestos[i].ventas_totales : 0);
+        // printf("\n");
         
         total_ingresos += puestos[i].ingresos_totales;
         total_ventas += puestos[i].ventas_totales;
